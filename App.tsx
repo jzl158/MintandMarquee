@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ShoppingBag, MessageCircle, Gamepad2, User, Map as MapIcon, ZoomIn, Menu, X, ShoppingCart } from 'lucide-react';
+import { ShoppingBag, MessageCircle, Gamepad2, User, Map as MapIcon, ZoomIn, Menu, X, ShoppingCart, Instagram, ChevronDown, ChevronRight } from 'lucide-react';
 import VirtualJoystick from './components/VirtualJoystick';
 import ShopModal from './components/ShopModal';
 import Character from './components/Character';
@@ -14,7 +14,9 @@ const getDistance = (p1: Position, p2: Position) => {
 const App: React.FC = () => {
   // Landing State
   const [gameStarted, setGameStarted] = useState(false);
+  const [currentView, setCurrentView] = useState<'landing' | 'products' | 'game'>('landing');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
   // Game State
   const [playerPosition, setPlayerPosition] = useState({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
@@ -187,10 +189,18 @@ const App: React.FC = () => {
     setViewMode(prev => prev === 'action' ? 'map' : 'action');
   };
 
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
   // Landing Page
-  if (!gameStarted) {
+  if (currentView === 'landing') {
     return (
-      <div className="relative w-full h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 font-sans overflow-y-scroll">
+      <div className="relative w-full h-screen bg-gradient-to-br from-black via-gray-900 to-emerald-950 font-sans overflow-y-scroll">
 
         {/* Navbar */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
@@ -207,18 +217,31 @@ const App: React.FC = () => {
 
               {/* Logo/Brand */}
               <div className="flex items-center gap-2">
-                <ShoppingBag className="text-white" size={28} />
-                <h1 className="text-2xl font-bold text-white tracking-tight">Mint & Marquee</h1>
+                <img
+                  src="/components/MMWHTfull.PNG"
+                  alt="Mint & Marquee"
+                  className="h-8 md:h-10"
+                />
               </div>
             </div>
 
-            {/* Right side: Cart */}
+            {/* Right side: Instagram + Cart */}
             <div className="flex items-center gap-4">
+              {/* Instagram */}
+              <a
+                href="https://www.instagram.com/mintandmarquee/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <Instagram className="text-white" size={24} />
+              </a>
+
               {/* Cart */}
               <button className="relative p-2 hover:bg-white/10 rounded-lg transition-colors">
                 <ShoppingCart className="text-white" size={24} />
                 {inventory.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                     {inventory.length}
                   </span>
                 )}
@@ -235,7 +258,7 @@ const App: React.FC = () => {
         >
           {/* Panel Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900">Categories</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Mint & Marquee</h2>
             <button
               onClick={() => setIsMenuOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -245,67 +268,131 @@ const App: React.FC = () => {
           </div>
 
           {/* Categories List */}
-          <div className="p-6 space-y-2 overflow-y-auto h-[calc(100%-88px)]">
-            <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-purple-50 transition-colors flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                <ShoppingBag className="text-white" size={20} />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900 group-hover:text-purple-600">All Shops</div>
-                <div className="text-sm text-gray-500">Browse everything</div>
-              </div>
+          <div className="p-6 space-y-1 overflow-y-auto h-[calc(100%-88px)]">
+
+            {/* All Products */}
+            <button
+              onClick={() => {
+                setCurrentView('products');
+                setIsMenuOpen(false);
+              }}
+              className="w-full text-left px-4 py-3 rounded-lg bg-emerald-50 border-2 border-emerald-500 hover:bg-emerald-100 transition-colors mb-2"
+            >
+              <span className="font-bold text-emerald-700">All Products</span>
             </button>
 
-            <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                <Gamepad2 className="text-white" size={20} />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900 group-hover:text-blue-600">Gaming</div>
-                <div className="text-sm text-gray-500">Pixel perfect finds</div>
-              </div>
+            {/* Culture & Identity */}
+            <div className="space-y-1">
+              <button
+                onClick={() => toggleCategory('culture')}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-between group"
+              >
+                <span className="font-bold text-gray-900 group-hover:text-emerald-600">Culture & Identity</span>
+                {expandedCategories.includes('culture') ? (
+                  <ChevronDown size={20} className="text-gray-500" />
+                ) : (
+                  <ChevronRight size={20} className="text-gray-500" />
+                )}
+              </button>
+              {expandedCategories.includes('culture') && (
+                <div className="ml-4 space-y-1">
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Web3</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Sports</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">420</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Hypebeast</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Anime</button>
+                </div>
+              )}
+            </div>
+
+            {/* Art & Design */}
+            <div className="space-y-1">
+              <button
+                onClick={() => toggleCategory('art')}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-between group"
+              >
+                <span className="font-bold text-gray-900 group-hover:text-emerald-600">Art & Design</span>
+                {expandedCategories.includes('art') ? (
+                  <ChevronDown size={20} className="text-gray-500" />
+                ) : (
+                  <ChevronRight size={20} className="text-gray-500" />
+                )}
+              </button>
+              {expandedCategories.includes('art') && (
+                <div className="ml-4 space-y-1">
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Sculptures</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Geometrics</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Ancient Artifacts</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Classical Art</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Jewelry</button>
+                </div>
+              )}
+            </div>
+
+            {/* Objects & Collectibles */}
+            <div className="space-y-1">
+              <button
+                onClick={() => toggleCategory('objects')}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-between group"
+              >
+                <span className="font-bold text-gray-900 group-hover:text-emerald-600">Objects & Collectibles</span>
+                {expandedCategories.includes('objects') ? (
+                  <ChevronDown size={20} className="text-gray-500" />
+                ) : (
+                  <ChevronRight size={20} className="text-gray-500" />
+                )}
+              </button>
+              {expandedCategories.includes('objects') && (
+                <div className="ml-4 space-y-1">
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Household Items</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Collectibles</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Signage</button>
+                </div>
+              )}
+            </div>
+
+            {/* Learning & Interaction */}
+            <div className="space-y-1">
+              <button
+                onClick={() => toggleCategory('learning')}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-between group"
+              >
+                <span className="font-bold text-gray-900 group-hover:text-emerald-600">Learning & Interaction</span>
+                {expandedCategories.includes('learning') ? (
+                  <ChevronDown size={20} className="text-gray-500" />
+                ) : (
+                  <ChevronRight size={20} className="text-gray-500" />
+                )}
+              </button>
+              {expandedCategories.includes('learning') && (
+                <div className="ml-4 space-y-1">
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Education / Games</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Animals</button>
+                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Fidgets</button>
+                </div>
+              )}
+            </div>
+
+            {/* Customs */}
+            <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors">
+              <span className="font-bold text-gray-900 hover:text-emerald-600">Customs</span>
             </button>
 
-            <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-green-50 transition-colors flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                <User className="text-white" size={20} />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900 group-hover:text-green-600">Fashion</div>
-                <div className="text-sm text-gray-500">Style & accessories</div>
-              </div>
-            </button>
-
-            <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-pink-50 transition-colors flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
-                <MessageCircle className="text-white" size={20} />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900 group-hover:text-pink-600">Collectibles</div>
-                <div className="text-sm text-gray-500">Rare items</div>
-              </div>
-            </button>
-
-            <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-orange-50 transition-colors flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
-                <MapIcon className="text-white" size={20} />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900 group-hover:text-orange-600">Explore</div>
-                <div className="text-sm text-gray-500">Discover new areas</div>
-              </div>
+            {/* Limited Drops */}
+            <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors">
+              <span className="font-bold text-gray-900 hover:text-emerald-600">Limited Drops</span>
             </button>
 
             <div className="border-t border-gray-200 mt-4 pt-4">
               <button
                 onClick={() => {
                   setIsMenuOpen(false);
-                  setGameStarted(true);
+                  setCurrentView('products');
                 }}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-emerald-600 to-green-700 text-white px-6 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <ShoppingBag size={20} />
-                Start Shopping
+                Shop Now
               </button>
             </div>
           </div>
@@ -322,19 +409,33 @@ const App: React.FC = () => {
         {/* Hero Section */}
         <section className="relative w-full h-screen flex items-center justify-center overflow-hidden">
           <div className="text-center z-10 px-6">
-            <h1 className="text-6xl md:text-8xl font-bold text-white mb-4 tracking-tight">
-              Pixel Bazaar
-            </h1>
-            <p className="text-xl md:text-2xl text-blue-200 mb-8 font-medium">
+            <img
+              src="/components/MMweblogo.png"
+              alt="Mint & Marquee"
+              className="w-64 md:w-96 mx-auto -mb-12 drop-shadow-2xl"
+            />
+            <p className="text-xl md:text-2xl text-emerald-200 mb-8 font-medium">
               A world of shops awaits your discovery
             </p>
-            <button
-              onClick={() => setGameStarted(true)}
-              className="bg-white text-purple-900 px-10 py-4 rounded-full text-xl font-bold shadow-2xl hover:scale-110 hover:shadow-purple-500/50 transition-all duration-300 active:scale-95 flex items-center gap-3 mx-auto"
-            >
-              <ShoppingBag size={28} />
-              Explore Now
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button
+                onClick={() => setCurrentView('products')}
+                className="bg-emerald-500 text-white px-10 py-4 rounded-full text-xl font-bold shadow-2xl hover:scale-110 hover:shadow-emerald-500/50 transition-all duration-300 active:scale-95 flex items-center gap-3"
+              >
+                <ShoppingBag size={28} />
+                Shop Now
+              </button>
+              <button
+                onClick={() => {
+                  setGameStarted(true);
+                  setCurrentView('game');
+                }}
+                className="bg-white text-gray-900 px-10 py-4 rounded-full text-xl font-bold shadow-2xl hover:scale-110 hover:shadow-white/50 transition-all duration-300 active:scale-95 flex items-center gap-3"
+              >
+                <Gamepad2 size={28} />
+                Explore Mode
+              </button>
+            </div>
 
             {/* Scroll indicator */}
             <div className="mt-16 animate-bounce">
@@ -347,9 +448,9 @@ const App: React.FC = () => {
 
           {/* Animated background elements */}
           <div className="absolute inset-0 overflow-hidden opacity-20">
-            <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-20 right-20 w-40 h-40 bg-purple-500 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-pink-500 rounded-full blur-3xl animate-pulse delay-500"></div>
+            <div className="absolute top-10 left-10 w-32 h-32 bg-emerald-500 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-20 w-40 h-40 bg-green-600 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-teal-500 rounded-full blur-3xl animate-pulse delay-500"></div>
           </div>
         </section>
 
@@ -359,40 +460,40 @@ const App: React.FC = () => {
             <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
               Why You'll Love It
             </h2>
-            <p className="text-blue-200 text-center mb-16 text-lg">
+            <p className="text-emerald-200 text-center mb-16 text-lg">
               Experience shopping like never before in this immersive pixel world
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Feature 1 */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:scale-105 transition-transform duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-green-700 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <Gamepad2 size={32} className="text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3 text-center">Explore Freely</h3>
-                <p className="text-blue-200 text-center">
+                <p className="text-emerald-200 text-center">
                   Navigate a vibrant pixel world using intuitive controls. Discover hidden shops and unique items around every corner.
                 </p>
               </div>
 
               {/* Feature 2 */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:scale-105 transition-transform duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <ShoppingBag size={32} className="text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3 text-center">Shop & Collect</h3>
-                <p className="text-blue-200 text-center">
+                <p className="text-emerald-200 text-center">
                   Visit unique pixel shops, browse their inventory, and build your collection. Each shop offers something special.
                 </p>
               </div>
 
               {/* Feature 3 */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 hover:scale-105 transition-transform duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-600 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <MapIcon size={32} className="text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3 text-center">Map Overview</h3>
-                <p className="text-blue-200 text-center">
+                <p className="text-emerald-200 text-center">
                   Switch between action and map views to plan your route or zoom in for an up-close shopping experience.
                 </p>
               </div>
@@ -406,19 +507,19 @@ const App: React.FC = () => {
             <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
               How It Works
             </h2>
-            <p className="text-blue-200 text-center mb-16 text-lg">
+            <p className="text-emerald-200 text-center mb-16 text-lg">
               Get started in three simple steps
             </p>
 
             <div className="space-y-12">
               {/* Step 1 */}
               <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-emerald-600 to-green-700 rounded-full flex items-center justify-center text-white text-3xl font-bold">
                   1
                 </div>
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="text-2xl font-bold text-white mb-2">Move Your Character</h3>
-                  <p className="text-blue-200 text-lg">
+                  <p className="text-emerald-200 text-lg">
                     Use arrow keys on desktop or the virtual joystick on mobile to navigate the pixel world. Your character responds instantly to your commands.
                   </p>
                 </div>
@@ -426,12 +527,12 @@ const App: React.FC = () => {
 
               {/* Step 2 */}
               <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
                   2
                 </div>
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="text-2xl font-bold text-white mb-2">Find Shops</h3>
-                  <p className="text-blue-200 text-lg">
+                  <p className="text-emerald-200 text-lg">
                     Explore the world to find colorful shops. When you get close, an interaction ring appears and you can enter to browse their inventory.
                   </p>
                 </div>
@@ -439,12 +540,12 @@ const App: React.FC = () => {
 
               {/* Step 3 */}
               <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-green-600 to-emerald-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
                   3
                 </div>
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="text-2xl font-bold text-white mb-2">Shop & Build Your Collection</h3>
-                  <p className="text-blue-200 text-lg">
+                  <p className="text-emerald-200 text-lg">
                     Browse unique items, make purchases with your gold, and watch your inventory grow. Each item you collect adds to your personal collection.
                   </p>
                 </div>
@@ -459,24 +560,24 @@ const App: React.FC = () => {
             <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
               Experience the World
             </h2>
-            <p className="text-blue-200 text-center mb-16 text-lg">
+            <p className="text-emerald-200 text-center mb-16 text-lg">
               A pixel perfect shopping adventure
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gradient-to-br from-purple-600/30 to-blue-600/30 backdrop-blur-md rounded-2xl p-12 border border-white/20 flex items-center justify-center">
+              <div className="bg-gradient-to-br from-emerald-600/30 to-green-700/30 backdrop-blur-md rounded-2xl p-12 border border-white/20 flex items-center justify-center">
                 <div className="text-center">
                   <MessageCircle size={64} className="text-white/60 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white">Interactive NPCs</h3>
-                  <p className="text-blue-200 mt-2">Chat with characters and discover their stories</p>
+                  <p className="text-emerald-200 mt-2">Chat with characters and discover their stories</p>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-pink-600/30 to-purple-600/30 backdrop-blur-md rounded-2xl p-12 border border-white/20 flex items-center justify-center">
+              <div className="bg-gradient-to-br from-teal-600/30 to-emerald-700/30 backdrop-blur-md rounded-2xl p-12 border border-white/20 flex items-center justify-center">
                 <div className="text-center">
                   <User size={64} className="text-white/60 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white">Your Avatar</h3>
-                  <p className="text-blue-200 mt-2">Control your character with smooth animations</p>
+                  <p className="text-emerald-200 mt-2">Control your character with smooth animations</p>
                 </div>
               </div>
             </div>
@@ -489,24 +590,162 @@ const App: React.FC = () => {
             <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
               Ready to Start Shopping?
             </h2>
-            <p className="text-xl md:text-2xl text-blue-200 mb-10 font-medium">
+            <p className="text-xl md:text-2xl text-emerald-200 mb-10 font-medium">
               Jump into the pixel bazaar and start your adventure today
             </p>
-            <button
-              onClick={() => setGameStarted(true)}
-              className="bg-white text-purple-900 px-12 py-5 rounded-full text-2xl font-bold shadow-2xl hover:scale-110 hover:shadow-purple-500/50 transition-all duration-300 active:scale-95 flex items-center gap-4 mx-auto"
-            >
-              <ShoppingBag size={32} />
-              Start Exploring
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button
+                onClick={() => setCurrentView('products')}
+                className="bg-emerald-500 text-white px-12 py-5 rounded-full text-2xl font-bold shadow-2xl hover:scale-110 hover:shadow-emerald-500/50 transition-all duration-300 active:scale-95 flex items-center gap-4"
+              >
+                <ShoppingBag size={32} />
+                Shop Now
+              </button>
+              <button
+                onClick={() => {
+                  setGameStarted(true);
+                  setCurrentView('game');
+                }}
+                className="bg-white text-gray-900 px-12 py-5 rounded-full text-2xl font-bold shadow-2xl hover:scale-110 hover:shadow-white/50 transition-all duration-300 active:scale-95 flex items-center gap-4"
+              >
+                <Gamepad2 size={32} />
+                Explore Mode
+              </button>
+            </div>
           </div>
 
           {/* Decorative elements */}
           <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-purple-500 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-500 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-emerald-500 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-green-600 rounded-full blur-3xl"></div>
           </div>
         </section>
+
+      </div>
+    );
+  }
+
+  // All Products Page
+  if (currentView === 'products') {
+    return (
+      <div className="relative w-full min-h-screen bg-gradient-to-br from-black via-gray-900 to-emerald-950 font-sans">
+
+        {/* Navbar */}
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/20">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            {/* Left side: Menu + Logo */}
+            <div className="flex items-center gap-4">
+              {/* Hamburger Menu */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <Menu className="text-white" size={28} />
+              </button>
+
+              {/* Logo/Brand */}
+              <div className="flex items-center gap-2">
+                <img
+                  src="/components/MMWHTfull.PNG"
+                  alt="Mint & Marquee"
+                  className="h-8 md:h-10 cursor-pointer"
+                  onClick={() => setCurrentView('landing')}
+                />
+              </div>
+            </div>
+
+            {/* Right side: Instagram + Cart */}
+            <div className="flex items-center gap-4">
+              {/* Instagram */}
+              <a
+                href="https://www.instagram.com/mintandmarquee/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <Instagram className="text-white" size={24} />
+              </a>
+
+              {/* Cart */}
+              <button className="relative p-2 hover:bg-white/10 rounded-lg transition-colors">
+                <ShoppingCart className="text-white" size={24} />
+                {inventory.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {inventory.length}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        {/* Side Panel (reuse from landing) */}
+        <div
+          className={`fixed top-0 left-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
+            isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          {/* Panel Header */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-900">Mint & Marquee</h2>
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="text-gray-900" size={24} />
+            </button>
+          </div>
+
+          {/* Categories List */}
+          <div className="p-6 space-y-1 overflow-y-auto h-[calc(100%-88px)]">
+
+            {/* All Products */}
+            <button
+              onClick={() => {
+                setCurrentView('products');
+                setIsMenuOpen(false);
+              }}
+              className="w-full text-left px-4 py-3 rounded-lg bg-emerald-50 border-2 border-emerald-500 hover:bg-emerald-100 transition-colors mb-2"
+            >
+              <span className="font-bold text-emerald-700">All Products</span>
+            </button>
+
+            {/* Other categories would go here - simplified for products page */}
+          </div>
+        </div>
+
+        {/* Overlay when menu is open */}
+        {isMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setIsMenuOpen(false)}
+          />
+        )}
+
+        {/* Products Grid */}
+        <div className="pt-24 px-6 pb-12 max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">All Products</h1>
+            <p className="text-emerald-200">Discover our entire collection</p>
+          </div>
+
+          {/* Products Grid Layout */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {/* Placeholder Products - Replace with actual product data */}
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:scale-105 transition-transform duration-300 cursor-pointer">
+                <div className="aspect-square bg-gradient-to-br from-emerald-500/20 to-green-700/20 flex items-center justify-center">
+                  <ShoppingBag size={48} className="text-white/40" />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-white font-semibold mb-1">Product {i + 1}</h3>
+                  <p className="text-emerald-200 text-sm mb-2">Category Name</p>
+                  <p className="text-white font-bold">$99.99</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
       </div>
     );
