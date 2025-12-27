@@ -218,7 +218,7 @@ const App: React.FC = () => {
               {/* Logo/Brand */}
               <div className="flex items-center gap-2">
                 <img
-                  src="/components/MMWHTfull.PNG"
+                  src="/MMWHTfull.PNG"
                   alt="Mint & Marquee"
                   className="h-8 md:h-10"
                 />
@@ -410,7 +410,7 @@ const App: React.FC = () => {
         <section className="relative w-full h-screen flex items-center justify-center overflow-hidden">
           <div className="text-center z-10 px-6">
             <img
-              src="/components/MMweblogo.png"
+              src="/MMweblogo.png"
               alt="Mint & Marquee"
               className="w-64 md:w-96 mx-auto -mb-12 drop-shadow-2xl"
             />
@@ -646,7 +646,7 @@ const App: React.FC = () => {
               {/* Logo/Brand */}
               <div className="flex items-center gap-2">
                 <img
-                  src="/components/MMWHTfull.PNG"
+                  src="/MMWHTfull.PNG"
                   alt="Mint & Marquee"
                   className="h-8 md:h-10 cursor-pointer"
                   onClick={() => setCurrentView('landing')}
