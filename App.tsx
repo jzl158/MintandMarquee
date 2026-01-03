@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // null means "All Products"
 
   // Game State
   const [playerPosition, setPlayerPosition] = useState({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
@@ -214,6 +215,17 @@ const App: React.FC = () => {
     setInventory(prev => [...prev, shopItem]);
   };
 
+  const handleCategoryClick = (category: string | null) => {
+    setSelectedCategory(category);
+    setCurrentView('products');
+    setIsMenuOpen(false);
+  };
+
+  // Filter products based on selected category
+  const filteredProducts = selectedCategory
+    ? ALL_PRODUCTS.filter(p => p.subCategory === selectedCategory)
+    : ALL_PRODUCTS;
+
   // Landing Page
   if (currentView === 'landing') {
     return (
@@ -289,10 +301,7 @@ const App: React.FC = () => {
 
             {/* All Products */}
             <button
-              onClick={() => {
-                setCurrentView('products');
-                setIsMenuOpen(false);
-              }}
+              onClick={() => handleCategoryClick(null)}
               className="w-full text-left px-4 py-3 rounded-lg bg-emerald-50 border-2 border-emerald-500 hover:bg-emerald-100 transition-colors mb-2"
             >
               <span className="font-bold text-emerald-700">All Products</span>
@@ -313,11 +322,9 @@ const App: React.FC = () => {
               </button>
               {expandedCategories.includes('culture') && (
                 <div className="ml-4 space-y-1">
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Web3</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Sports</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">420</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Hypebeast</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Anime</button>
+                  <button onClick={() => handleCategoryClick('Web3')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Web3</button>
+                  <button onClick={() => handleCategoryClick('420')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">420</button>
+                  <button onClick={() => handleCategoryClick('Hypebeast')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Hypebeast</button>
                 </div>
               )}
             </div>
@@ -337,11 +344,10 @@ const App: React.FC = () => {
               </button>
               {expandedCategories.includes('art') && (
                 <div className="ml-4 space-y-1">
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Sculptures</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Geometrics</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Ancient Artifacts</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Classical Art</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Jewelry</button>
+                  <button onClick={() => handleCategoryClick('Sculptures')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Sculptures</button>
+                  <button onClick={() => handleCategoryClick('Geometrics')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Geometrics</button>
+                  <button onClick={() => handleCategoryClick('Ancient')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Ancient Artifacts</button>
+                  <button onClick={() => handleCategoryClick('Jewelry')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Jewelry</button>
                 </div>
               )}
             </div>
@@ -361,51 +367,20 @@ const App: React.FC = () => {
               </button>
               {expandedCategories.includes('objects') && (
                 <div className="ml-4 space-y-1">
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Household Items</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Collectibles</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Signage</button>
-                </div>
-              )}
-            </div>
-
-            {/* Learning & Interaction */}
-            <div className="space-y-1">
-              <button
-                onClick={() => toggleCategory('learning')}
-                className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-between group"
-              >
-                <span className="font-bold text-gray-900 group-hover:text-emerald-600">Learning & Interaction</span>
-                {expandedCategories.includes('learning') ? (
-                  <ChevronDown size={20} className="text-gray-500" />
-                ) : (
-                  <ChevronRight size={20} className="text-gray-500" />
-                )}
-              </button>
-              {expandedCategories.includes('learning') && (
-                <div className="ml-4 space-y-1">
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Education / Games</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Animals</button>
-                  <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Fidgets</button>
+                  <button onClick={() => handleCategoryClick('Household')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Household Items</button>
+                  <button onClick={() => handleCategoryClick('Collectible')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Collectibles</button>
                 </div>
               )}
             </div>
 
             {/* Customs */}
-            <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors">
+            <button onClick={() => handleCategoryClick('Custom')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors">
               <span className="font-bold text-gray-900 hover:text-emerald-600">Customs</span>
-            </button>
-
-            {/* Limited Drops */}
-            <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors">
-              <span className="font-bold text-gray-900 hover:text-emerald-600">Limited Drops</span>
             </button>
 
             <div className="border-t border-gray-200 mt-4 pt-4">
               <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  setCurrentView('products');
-                }}
+                onClick={() => handleCategoryClick(null)}
                 className="w-full bg-gradient-to-r from-emerald-600 to-green-700 text-white px-6 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <ShoppingBag size={20} />
@@ -727,16 +702,82 @@ const App: React.FC = () => {
 
                 {/* All Products */}
                 <button
-                  onClick={() => {
-                    setCurrentView('products');
-                    setIsMenuOpen(false);
-                  }}
+                  onClick={() => handleCategoryClick(null)}
                   className="w-full text-left px-4 py-3 rounded-lg bg-emerald-50 border-2 border-emerald-500 hover:bg-emerald-100 transition-colors mb-2"
                 >
                   <span className="font-bold text-emerald-700">All Products</span>
                 </button>
 
-                {/* Other categories would go here - simplified for products page */}
+                {/* Culture & Identity */}
+                <div className="space-y-1">
+                  <button
+                    onClick={() => toggleCategory('culture')}
+                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-between group"
+                  >
+                    <span className="font-bold text-gray-900 group-hover:text-emerald-600">Culture & Identity</span>
+                    {expandedCategories.includes('culture') ? (
+                      <ChevronDown size={20} className="text-gray-500" />
+                    ) : (
+                      <ChevronRight size={20} className="text-gray-500" />
+                    )}
+                  </button>
+                  {expandedCategories.includes('culture') && (
+                    <div className="ml-4 space-y-1">
+                      <button onClick={() => handleCategoryClick('Web3')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Web3</button>
+                      <button onClick={() => handleCategoryClick('420')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">420</button>
+                      <button onClick={() => handleCategoryClick('Hypebeast')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Hypebeast</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Art & Design */}
+                <div className="space-y-1">
+                  <button
+                    onClick={() => toggleCategory('art')}
+                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-between group"
+                  >
+                    <span className="font-bold text-gray-900 group-hover:text-emerald-600">Art & Design</span>
+                    {expandedCategories.includes('art') ? (
+                      <ChevronDown size={20} className="text-gray-500" />
+                    ) : (
+                      <ChevronRight size={20} className="text-gray-500" />
+                    )}
+                  </button>
+                  {expandedCategories.includes('art') && (
+                    <div className="ml-4 space-y-1">
+                      <button onClick={() => handleCategoryClick('Sculptures')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Sculptures</button>
+                      <button onClick={() => handleCategoryClick('Geometrics')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Geometrics</button>
+                      <button onClick={() => handleCategoryClick('Ancient')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Ancient Artifacts</button>
+                      <button onClick={() => handleCategoryClick('Jewelry')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Jewelry</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Objects & Collectibles */}
+                <div className="space-y-1">
+                  <button
+                    onClick={() => toggleCategory('objects')}
+                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-between group"
+                  >
+                    <span className="font-bold text-gray-900 group-hover:text-emerald-600">Objects & Collectibles</span>
+                    {expandedCategories.includes('objects') ? (
+                      <ChevronDown size={20} className="text-gray-500" />
+                    ) : (
+                      <ChevronRight size={20} className="text-gray-500" />
+                    )}
+                  </button>
+                  {expandedCategories.includes('objects') && (
+                    <div className="ml-4 space-y-1">
+                      <button onClick={() => handleCategoryClick('Household')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Household Items</button>
+                      <button onClick={() => handleCategoryClick('Collectible')} className="w-full text-left px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors text-gray-700 hover:text-emerald-600">Collectibles</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Customs */}
+                <button onClick={() => handleCategoryClick('Custom')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-emerald-50 transition-colors">
+                  <span className="font-bold text-gray-900 hover:text-emerald-600">Customs</span>
+                </button>
               </div>
             </div>
 
@@ -751,13 +792,20 @@ const App: React.FC = () => {
             {/* Products Grid */}
             <div className="pt-24 px-6 pb-12 max-w-7xl mx-auto">
               <div className="mb-8">
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">All Products</h1>
-                <p className="text-emerald-200">Discover our entire collection of {ALL_PRODUCTS.length} items</p>
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  {selectedCategory ? selectedCategory : 'All Products'}
+                </h1>
+                <p className="text-emerald-200">
+                  {selectedCategory
+                    ? `Showing ${filteredProducts.length} ${selectedCategory} ${filteredProducts.length === 1 ? 'product' : 'products'}`
+                    : `Discover our entire collection of ${filteredProducts.length} items`
+                  }
+                </p>
               </div>
 
               {/* Products Grid Layout */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {ALL_PRODUCTS.map((product) => (
+                {filteredProducts.map((product) => (
                   <div
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
