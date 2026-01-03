@@ -47,44 +47,58 @@ const createItem = (id: string, name: string, price: number, cat: ItemCategory, 
 
 export const MOCK_SHOPS: InteractableObject[] = [
   {
-    id: 'weapon_shop',
+    id: 'hypebeast_shop',
     type: 'shop',
     position: { x: 400, y: 300 },
     size: { width: 120, height: 100 },
     color: 'bg-red-800',
-    label: 'Blacksmith',
-    items: [
-      createItem('sword1', 'Iron Sword', 150, ItemCategory.WEAPONS, 'A sturdy iron sword for beginners.'),
-      createItem('bow1', 'Oak Bow', 200, ItemCategory.WEAPONS, 'Reliable ranged damage.'),
-      createItem('shield1', 'Wooden Shield', 100, ItemCategory.ARMOR, 'Basic protection.'),
-      createItem('helm1', 'Iron Helm', 300, ItemCategory.ARMOR, 'Protects your noggin.')
-    ]
+    label: 'Hypebeast HQ',
+    category: 'Hypebeast'
   },
   {
-    id: 'magic_shop',
+    id: 'web3_shop',
     type: 'shop',
     position: { x: 800, y: 300 },
     size: { width: 120, height: 100 },
     color: 'bg-purple-800',
-    label: 'Alchemist',
-    items: [
-      createItem('pot1', 'Health Potion', 50, ItemCategory.POTIONS, 'Restores 50 HP.'),
-      createItem('pot2', 'Mana Potion', 75, ItemCategory.POTIONS, 'Restores 50 MP.'),
-      createItem('elixir', 'Elixir of Life', 500, ItemCategory.POTIONS, 'Fully restores everything.')
-    ]
+    label: 'Crypto Corner',
+    category: 'Web3'
   },
   {
-    id: 'food_stand',
+    id: 'collectibles_shop',
     type: 'shop',
     position: { x: 600, y: 600 },
     size: { width: 140, height: 80 },
     color: 'bg-green-700',
-    label: 'Market Stand',
-    items: [
-      createItem('apple', 'Red Apple', 5, ItemCategory.FOOD, 'Crunchy and sweet.'),
-      createItem('bread', 'Loaf of Bread', 10, ItemCategory.FOOD, 'Freshly baked.'),
-      createItem('tech1', 'Smartphone', 999, ItemCategory.TECH, 'An ancient artifact of connection.')
-    ]
+    label: 'Collectibles Market',
+    category: 'Collectible'
+  },
+  {
+    id: 'ancient_shop',
+    type: 'shop',
+    position: { x: 1200, y: 500 },
+    size: { width: 130, height: 90 },
+    color: 'bg-yellow-700',
+    label: 'Ancient Relics',
+    category: 'Ancient'
+  },
+  {
+    id: 'sculptures_shop',
+    type: 'shop',
+    position: { x: 1000, y: 800 },
+    size: { width: 120, height: 100 },
+    color: 'bg-gray-700',
+    label: 'Art Gallery',
+    category: 'Sculptures'
+  },
+  {
+    id: 'household_shop',
+    type: 'shop',
+    position: { x: 300, y: 800 },
+    size: { width: 120, height: 90 },
+    color: 'bg-blue-700',
+    label: 'Home Goods',
+    category: 'Household'
   },
   {
     id: 'fountain',

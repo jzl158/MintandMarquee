@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ShoppingBag, MessageCircle, Gamepad2, User, Map as MapIcon, ZoomIn, Menu, X, ShoppingCart, Instagram, ChevronDown, ChevronRight } from 'lucide-react';
+import { ShoppingBag, MessageCircle, Gamepad2, User, Map as MapIcon, ZoomIn, Menu, X, ShoppingCart, Instagram, ChevronDown, ChevronRight, TrendingUp } from 'lucide-react';
 import VirtualJoystick from './components/VirtualJoystick';
 import ShopModal from './components/ShopModal';
 import Character from './components/Character';
 import ProductPage from './components/ProductPage';
 import { MOCK_SHOPS, GAME_WIDTH, GAME_HEIGHT, PLAYER_SIZE, PLAYER_SPEED, INITIAL_GOLD, FLOOR_IMAGE_URL, CHARACTER_SPRITES } from './constants';
 import { InteractableObject, ShopItem, Position, Direction, Product } from './types';
-import { ALL_PRODUCTS } from './products';
+import { ALL_PRODUCTS, PRODUCTS_BY_SUBCATEGORY } from './products';
 
 // Utility to calculate distance
 const getDistance = (p1: Position, p2: Position) => {
@@ -32,6 +32,7 @@ const App: React.FC = () => {
   // Player Stats
   const [inventory, setInventory] = useState<ShopItem[]>([]);
   const [gold, setGold] = useState(INITIAL_GOLD);
+  const [points, setPoints] = useState(0); // Game mode points
 
   // Animation State
   const [facing, setFacing] = useState<Direction>('down');
@@ -186,7 +187,20 @@ const App: React.FC = () => {
   const handleBuy = (item: ShopItem) => {
     setGold(prev => prev - item.price);
     setInventory(prev => [...prev, item]);
-    // Optional: Show success toast
+  };
+
+  const handleBuyProduct = (product: Product) => {
+    // In game mode, buying adds points instead of subtracting gold
+    setPoints(prev => prev + product.price);
+    const shopItem: ShopItem = {
+      id: product.id,
+      name: product.displayName,
+      price: product.price,
+      description: product.description,
+      category: 'TECH' as any,
+      image: product.mainImage
+    };
+    setInventory(prev => [...prev, shopItem]);
   };
 
   const toggleView = () => {
@@ -920,14 +934,14 @@ const App: React.FC = () => {
         {/* Top Bar */}
         <div className="flex justify-between items-start pointer-events-auto">
             <div className="bg-black/40 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex items-center gap-4 text-white">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
                     <User size={20} />
                 </div>
                 <div>
-                    <div className="text-xs text-gray-400 uppercase font-bold">Balance</div>
-                    <div className="flex items-center gap-1 text-yellow-400 font-mono font-bold">
-                        <Coins size={14} />
-                        {gold}
+                    <div className="text-xs text-gray-400 uppercase font-bold">Points</div>
+                    <div className="flex items-center gap-1 text-emerald-400 font-mono font-bold">
+                        <TrendingUp size={14} />
+                        {points}
                     </div>
                 </div>
             </div>
@@ -999,13 +1013,14 @@ const App: React.FC = () => {
       />
 
       {/* Shop Modal */}
-      {activeShop && activeShop.type === 'shop' && activeShop.items && (
+      {activeShop && activeShop.type === 'shop' && activeShop.category && (
         <ShopModal
-          items={activeShop.items}
+          products={PRODUCTS_BY_SUBCATEGORY[activeShop.category] || []}
           shopName={activeShop.label}
-          playerGold={gold}
+          playerPoints={points}
           onClose={() => setActiveShop(null)}
-          onBuy={handleBuy}
+          onBuy={handleBuyProduct}
+          isGameMode={true}
         />
       )}
 

@@ -34,8 +34,9 @@ export interface InteractableObject {
   size: Size;
   color: string;
   label: string;
-  items?: ShopItem[]; // Only for shops
+  items?: ShopItem[]; // Only for shops (legacy, use category instead)
   dialogue?: string[];
+  category?: string; // Product category for real shops
 }
 
 export interface GameState {
