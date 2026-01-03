@@ -3,8 +3,10 @@ import { ShoppingBag, MessageCircle, Gamepad2, User, Map as MapIcon, ZoomIn, Men
 import VirtualJoystick from './components/VirtualJoystick';
 import ShopModal from './components/ShopModal';
 import Character from './components/Character';
+import ProductPage from './components/ProductPage';
 import { MOCK_SHOPS, GAME_WIDTH, GAME_HEIGHT, PLAYER_SIZE, PLAYER_SPEED, INITIAL_GOLD, FLOOR_IMAGE_URL, CHARACTER_SPRITES } from './constants';
-import { InteractableObject, ShopItem, Position, Direction } from './types';
+import { InteractableObject, ShopItem, Position, Direction, Product } from './types';
+import { ALL_PRODUCTS } from './products';
 
 // Utility to calculate distance
 const getDistance = (p1: Position, p2: Position) => {
@@ -17,6 +19,7 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'landing' | 'products' | 'game'>('landing');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Game State
   const [playerPosition, setPlayerPosition] = useState({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
@@ -195,6 +198,20 @@ const App: React.FC = () => {
         ? prev.filter(c => c !== category)
         : [...prev, category]
     );
+  };
+
+  const handleAddProductToCart = (product: Product) => {
+    // For now, we'll add to inventory as a ShopItem
+    // In a real app, you'd want separate cart management
+    const shopItem: ShopItem = {
+      id: product.id,
+      name: product.displayName,
+      price: product.price,
+      description: product.description,
+      category: 'TECH' as any, // Placeholder - you may want to map subcategories to ItemCategory
+      image: product.mainImage
+    };
+    setInventory(prev => [...prev, shopItem]);
   };
 
   // Landing Page
@@ -628,126 +645,150 @@ const App: React.FC = () => {
   // All Products Page
   if (currentView === 'products') {
     return (
-      <div className="relative w-full min-h-screen bg-gradient-to-br from-black via-gray-900 to-emerald-950 font-sans">
-
-        {/* Navbar */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/20">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            {/* Left side: Menu + Logo */}
-            <div className="flex items-center gap-4">
-              {/* Hamburger Menu */}
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <Menu className="text-white" size={28} />
-              </button>
-
-              {/* Logo/Brand */}
-              <div className="flex items-center gap-2">
-                <img
-                  src="/MMWHTfull.PNG"
-                  alt="Mint & Marquee"
-                  className="h-8 md:h-10 cursor-pointer"
-                  onClick={() => setCurrentView('landing')}
-                />
-              </div>
-            </div>
-
-            {/* Right side: Instagram + Cart */}
-            <div className="flex items-center gap-4">
-              {/* Instagram */}
-              <a
-                href="https://www.instagram.com/mintandmarquee/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <Instagram className="text-white" size={24} />
-              </a>
-
-              {/* Cart */}
-              <button className="relative p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <ShoppingCart className="text-white" size={24} />
-                {inventory.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {inventory.length}
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-        </nav>
-
-        {/* Side Panel (reuse from landing) */}
-        <div
-          className={`fixed top-0 left-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
-            isMenuOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
-        >
-          {/* Panel Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900">Mint & Marquee</h2>
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="text-gray-900" size={24} />
-            </button>
-          </div>
-
-          {/* Categories List */}
-          <div className="p-6 space-y-1 overflow-y-auto h-[calc(100%-88px)]">
-
-            {/* All Products */}
-            <button
-              onClick={() => {
-                setCurrentView('products');
-                setIsMenuOpen(false);
-              }}
-              className="w-full text-left px-4 py-3 rounded-lg bg-emerald-50 border-2 border-emerald-500 hover:bg-emerald-100 transition-colors mb-2"
-            >
-              <span className="font-bold text-emerald-700">All Products</span>
-            </button>
-
-            {/* Other categories would go here - simplified for products page */}
-          </div>
-        </div>
-
-        {/* Overlay when menu is open */}
-        {isMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setIsMenuOpen(false)}
+      <>
+        {/* Show ProductPage if a product is selected */}
+        {selectedProduct ? (
+          <ProductPage
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            onAddToCart={handleAddProductToCart}
           />
-        )}
+        ) : (
+          <div className="relative w-full min-h-screen bg-gradient-to-br from-black via-gray-900 to-emerald-950 font-sans">
 
-        {/* Products Grid */}
-        <div className="pt-24 px-6 pb-12 max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">All Products</h1>
-            <p className="text-emerald-200">Discover our entire collection</p>
-          </div>
+            {/* Navbar */}
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/20">
+              <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                {/* Left side: Menu + Logo */}
+                <div className="flex items-center gap-4">
+                  {/* Hamburger Menu */}
+                  <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <Menu className="text-white" size={28} />
+                  </button>
 
-          {/* Products Grid Layout */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {/* Placeholder Products - Replace with actual product data */}
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:scale-105 transition-transform duration-300 cursor-pointer">
-                <div className="aspect-square bg-gradient-to-br from-emerald-500/20 to-green-700/20 flex items-center justify-center">
-                  <ShoppingBag size={48} className="text-white/40" />
+                  {/* Logo/Brand */}
+                  <div className="flex items-center gap-2">
+                    <img
+                      src="/MMWHTfull.PNG"
+                      alt="Mint & Marquee"
+                      className="h-8 md:h-10 cursor-pointer"
+                      onClick={() => setCurrentView('landing')}
+                    />
+                  </div>
                 </div>
-                <div className="p-4">
-                  <h3 className="text-white font-semibold mb-1">Product {i + 1}</h3>
-                  <p className="text-emerald-200 text-sm mb-2">Category Name</p>
-                  <p className="text-white font-bold">$99.99</p>
+
+                {/* Right side: Instagram + Cart */}
+                <div className="flex items-center gap-4">
+                  {/* Instagram */}
+                  <a
+                    href="https://www.instagram.com/mintandmarquee/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <Instagram className="text-white" size={24} />
+                  </a>
+
+                  {/* Cart */}
+                  <button className="relative p-2 hover:bg-white/10 rounded-lg transition-colors">
+                    <ShoppingCart className="text-white" size={24} />
+                    {inventory.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {inventory.length}
+                      </span>
+                    )}
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </nav>
 
-      </div>
+            {/* Side Panel (reuse from landing) */}
+            <div
+              className={`fixed top-0 left-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
+                isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+              }`}
+            >
+              {/* Panel Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-900">Mint & Marquee</h2>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="text-gray-900" size={24} />
+                </button>
+              </div>
+
+              {/* Categories List */}
+              <div className="p-6 space-y-1 overflow-y-auto h-[calc(100%-88px)]">
+
+                {/* All Products */}
+                <button
+                  onClick={() => {
+                    setCurrentView('products');
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-lg bg-emerald-50 border-2 border-emerald-500 hover:bg-emerald-100 transition-colors mb-2"
+                >
+                  <span className="font-bold text-emerald-700">All Products</span>
+                </button>
+
+                {/* Other categories would go here - simplified for products page */}
+              </div>
+            </div>
+
+            {/* Overlay when menu is open */}
+            {isMenuOpen && (
+              <div
+                className="fixed inset-0 bg-black/50 z-40"
+                onClick={() => setIsMenuOpen(false)}
+              />
+            )}
+
+            {/* Products Grid */}
+            <div className="pt-24 px-6 pb-12 max-w-7xl mx-auto">
+              <div className="mb-8">
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">All Products</h1>
+                <p className="text-emerald-200">Discover our entire collection of {ALL_PRODUCTS.length} items</p>
+              </div>
+
+              {/* Products Grid Layout */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {ALL_PRODUCTS.map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => setSelectedProduct(product)}
+                    className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:scale-105 transition-transform duration-300 cursor-pointer group"
+                  >
+                    <div className="aspect-square bg-white/5 flex items-center justify-center p-4">
+                      <img
+                        src={product.mainImage}
+                        alt={product.displayName}
+                        className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <p className="text-emerald-400 text-xs mb-1 font-semibold uppercase tracking-wide">
+                        {product.subCategory}
+                      </p>
+                      <h3 className="text-white font-semibold mb-2 line-clamp-1">
+                        {product.displayName}
+                      </h3>
+                      <p className="text-emerald-200 font-bold text-lg">
+                        ${product.price.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+      </>
     );
   }
 

@@ -42,3 +42,14 @@ export interface GameState {
   inventory: ShopItem[];
   gold: number;
 }
+
+export interface Product {
+  id: string;
+  name: string;
+  displayName: string;
+  subCategory: string;
+  price: number;
+  description: string;
+  images: string[]; // Array of image paths
+  mainImage: string; // Primary image
+}
